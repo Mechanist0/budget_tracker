@@ -1,0 +1,38 @@
+<!-- index.html -->
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<h1>Budget Categories</h1>
+<div class="container">
+    {% for budget in budgets %}
+    <div class="card mb-3">
+        <div class="card-header">
+            <strong>{{ budget.category }}</strong> - Amount: ${{ budget.amount }}
+        </div>
+        <div class="card-body">
+            {% if budget.payments.all %}
+            <ul class="list-group list-group-flush">
+                {% for payment in budget.payments.all %}
+                <li class="list-group-item">
+                    Payment on {{ payment.date }} - Amount: ${{ payment.amount }} - Description: {{ payment.description }}
+                </li>
+                {% endfor %}
+                <!-- Displays remaining balance -->
+                <li class="list-group-item">
+                    Remaining Balance: $ {{ budget.remaining_balance|floatformat:2 }} 
+                </li>
+            </ul>
+            {% else %}
+            <p>No payments recorded.</p>
+            <li class="list-group-item">
+                Remaining Balance: ${{ budget.amount }}
+            </li>
+            {% endif %}
+            <!-- "Make Payment" button -->
+            <a href="{% url 'make_payment' budget.id %}" class="btn btn-success">Make Payment</a>
+        </div>
+    </div>
+    {% endfor %}
+    <a href="{% url 'budget_create' %}" class="btn btn-primary mb-3">Add Category</a>
+</div>
+{% endblock %}
