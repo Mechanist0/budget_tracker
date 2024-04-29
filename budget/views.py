@@ -41,13 +41,18 @@ def make_payment(request, budget_id):
         form = PaymentForm()
     return render(request, 'make_payment.html', {'budget': budget, 'form': form})
 
-# def budget_edit(request, id):
-#     budget = get_object_or_404(Budget, id=id)
-#     if request.method == 'POST':
-#         form = BudgetForm(request.POST, instance=budget)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('budget-detail', id=budget.id)
-#     else:
-#         form = BudgetForm(instance=budget)
-#     return render(request, 'budgets/budget_form.html', {'form': form})
+def budget_edit(request, id):
+    try:
+        budget = Budget.objects.get(id=id)
+    except Budget.DoesNotExist:
+        raise Http404("Budget does not exist")
+
+    if request.method == 'POST':
+        form = BudgetForm(request.POST, instance=budget)
+        if form.is_valid():
+            form.save()
+            return redirect('index')
+    else:
+        form = BudgetForm(instance=budget)
+    
+    return render(request, 'budget_edit.html', {'form': form})

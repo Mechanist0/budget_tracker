@@ -8,6 +8,7 @@
     <div class="card mb-3">
         <div class="card-header">
             <strong>{{ budget.category }}</strong> - Amount: ${{ budget.amount }}
+            <a href="{% url 'budget_edit' budget.id %}" class="btn btn-sm btn-outline-primary ml-2">Edit</a>
         </div>
         <div class="card-body">
             {% if budget.payments.all %}
