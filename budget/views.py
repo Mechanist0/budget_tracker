@@ -56,3 +56,13 @@ def budget_edit(request, id):
         form = BudgetForm(instance=budget)
     
     return render(request, 'budget_edit.html', {'form': form})
+
+def budget_delete(request, id):
+    try:
+        budget = Budget.objects.get(id=id)
+    except Budget.DoesNotExist:
+        return redirect('index')
+    
+    if request.method == 'POST':
+        budget.delete()
+        return redirect('index')  
