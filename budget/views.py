@@ -66,3 +66,16 @@ def budget_delete(request, id):
     if request.method == 'POST':
         budget.delete()
         return redirect('index')  
+    
+
+#Graph starts here
+
+
+def budget_graph(request):
+    data = Budget.objects.all()
+    context = { 'data' : data, }
+    
+    return render(request, 'budget_graph.html', context)
+
+
+#Graph ends here
