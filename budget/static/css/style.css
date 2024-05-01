@@ -1,0 +1,29 @@
+/*Style for home button*/
+
+.sidebar-nav #navbtn{
+    margin-top: 20px;
+    padding: 10px 15px;
+    list-style: none;
+    background-color: #FF5A5F;
+    border: none;
+    color: #BFD7EA;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+
+  }
+
+.container-fluid {
+  background-color: #00272B;
+  padding-top: 25px;
+  padding-left: 10px;
+  padding-bottom: 25px;
+}
+
+h1{
+  color: #FF5A5F;
+}
+
+form{
+  color: #BFD7EA;
+}

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -10,8 +11,7 @@
       rel="stylesheet"
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous">
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   </head>
   <body>
@@ -20,7 +20,7 @@
         <div class="col-sm-2">
           {% block sidebar %}
             <ul class="sidebar-nav">
-              <li><a href="{% url 'index' %}">Home</a></li>
+              <li><a id="navbtn" href="{% url 'index' %}">Home</a></li>
             </ul>
           {% endblock %}
         </div>
