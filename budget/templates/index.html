@@ -3,9 +3,8 @@
 
 {% block content %}
 <h1>Budget Categories</h1>
-<div class="container">
     {% for budget in budgets %}
-    <div class="card mb-3">
+    <div class="card mb-3 justify-content-center">
         <div class="card-header">
             <strong>{{ budget.category }}</strong> - Amount: ${{ budget.amount }}
             <a href="{% url 'budget_edit' budget.id %}" class="btn btn-sm btn-outline-primary ml-2">Edit</a>
@@ -39,5 +38,4 @@
     </div>
     {% endfor %}
     <a href="{% url 'budget_create' %}" class="btn btn-primary mb-3">Add Category</a>
-</div>
 {% endblock %}

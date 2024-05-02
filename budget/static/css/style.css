@@ -21,13 +21,13 @@
 }
 
 h1{
-  color: #FF5A5F;
+background-image: linear-gradient(to right, #5bcefa, #f5a9ba, white, #f5a9ba, #5bcefa);
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+    line-height: 1.5;
 }
 
 form{
   color: #BFD7EA;
-}
-
-body{
-  background-color: black;
 }
