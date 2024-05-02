@@ -21,8 +21,8 @@
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
                 <li><a class="nav-link px-2 text-secondary" id="navbtn" href="{% url 'index' %}">Home</a></li>
                 <li><a class="nav-link px-2 text-secondary" id="navbtn" href="{% url 'budget_graph' %}">Graph</a></li>
+                <li><span class="nav-link px-2 text-secondary">Remaining: ${{ balance }}</span></li>
             </ul>
-
             <div class="text-end">
                 <button type="button" class="btn btn-outline-light me-2">Login</button>
                 <button type="button" class="btn btn-warning">Sign-up</button>

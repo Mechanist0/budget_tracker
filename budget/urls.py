@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 from .views import budget_delete
 from .views import budget_graph
+
 urlpatterns = [
     path('', views.index, name='index'),
     path('budget/new/', views.budget_create, name='budget_create'),

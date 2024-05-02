@@ -2,10 +2,12 @@ from django import forms
 from .models import Budget, Payment
 import datetime
 
+
 class BudgetForm(forms.ModelForm):
     class Meta:
         model = Budget
         fields = ['category', 'amount']
+
 
 class PaymentForm(forms.Form):
     date = forms.DateField(initial=datetime.date.today)

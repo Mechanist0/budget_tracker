@@ -10,7 +10,8 @@ def index(request):
     for budget in budgets:
         total_payments = budget.payments.aggregate(total=Sum('amount'))['total'] or 0
         budget.remaining_balance = budget.amount - total_payments
-    return render(request, 'index.html', {'budgets': budgets})
+    return render(request, 'index.html', {'budgets': budgets, 'balance': get_balance()})
+
 
 def budget_create(request):
     if request.method == 'POST':
@@ -20,7 +21,8 @@ def budget_create(request):
             return redirect('index')
     else:
         form = BudgetForm()
-    return render(request, 'budget_create.html', {'form': form})
+    return render(request, 'budget_create.html', {'form': form, 'balance': get_balance()})
+
 
 def make_payment(request, budget_id):
     budget = Budget.objects.get(pk=budget_id)
@@ -31,7 +33,7 @@ def make_payment(request, budget_id):
             date = form.cleaned_data['date']
             amount = form.cleaned_data['amount']
             description = form.cleaned_data['description']
-            
+
             # Create and save Payment instance
             payment = Payment(date=date, amount=amount, description=description, budget=budget)
             payment.save()
@@ -39,7 +41,8 @@ def make_payment(request, budget_id):
             return redirect('index')  # Redirect to budget list after payment
     else:
         form = PaymentForm()
-    return render(request, 'make_payment.html', {'budget': budget, 'form': form})
+    return render(request, 'make_payment.html', {'budget': budget, 'form': form, 'balance': get_balance()})
+
 
 def budget_edit(request, id):
     try:
@@ -54,28 +57,36 @@ def budget_edit(request, id):
             return redirect('index')
     else:
         form = BudgetForm(instance=budget)
-    
-    return render(request, 'budget_edit.html', {'form': form})
+
+    return render(request, 'budget_edit.html', {'form': form, 'balance': get_balance()})
+
 
 def budget_delete(request, id):
     try:
         budget = Budget.objects.get(id=id)
     except Budget.DoesNotExist:
         return redirect('index')
-    
+
     if request.method == 'POST':
         budget.delete()
-        return redirect('index')  
-    
+        return redirect('index')
 
-#Graph starts here
+    # Graph starts here
 
 
 def budget_graph(request):
     data = Budget.objects.all()
-    context = { 'data' : data, }
-    
+    context = {'data': data, 'balance': get_balance()}
+
     return render(request, 'budget_graph.html', context)
 
 
-#Graph ends here
+# Graph ends here
+
+# Get balance
+def get_balance():
+    budgets = Budget.objects.all().prefetch_related('payments')
+    for budget in budgets:
+        total_payments = budget.payments.aggregate(total=Sum('amount'))['total'] or 0
+        budget.remaining_balance = budget.amount - total_payments
+    return budget.remaining_balance
