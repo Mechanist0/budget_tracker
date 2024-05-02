@@ -1,13 +1,19 @@
 from django.db import models
-from django.urls import reverse # Used in get_absolute_url() to get URL for specified ID
+from django.db.models import Sum
+from django.urls import reverse  # Used in get_absolute_url() to get URL for specified ID
 
-from django.db.models import UniqueConstraint # Constrains fields to unique values
-from django.db.models.functions import Lower # Returns lower cased value of field
+from django.db.models import UniqueConstraint  # Constrains fields to unique values
+from django.db.models.functions import Lower  # Returns lower cased value of field
+
 
 class Budget(models.Model):
     """Model representing a budget"""
     category = models.CharField(max_length=200)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    @property
+    def get_total(self):
+        return "Lmaos"
 
     def __str__(self):
         """String for representing the Model object."""
@@ -19,7 +25,6 @@ class Budget(models.Model):
 
 
 class Payment(models.Model):
-
     """Model representing a specific payment to a category."""
     budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name='payments')
     date = models.DateField()

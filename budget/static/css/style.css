@@ -1,6 +1,6 @@
 /*Style for home button*/
 
-.sidebar-nav #navbtn{
+.sidebar-nav #navbtn {
     margin-top: 20px;
     padding: 10px 15px;
     list-style: none;
@@ -11,23 +11,23 @@
     text-decoration: none;
     display: inline-block;
 
-  }
+}
 
 .container-fluid {
-  background-color: #00272B;
-  padding-top: 25px;
-  padding-left: 10px;
-  padding-bottom: 25px;
+    background-color: #00272B;
+    padding-top: 25px;
+    padding-left: 10px;
+    padding-bottom: 25px;
 }
 
-h1{
-  color: #FF5A5F;
+h1 {
+    background-image: linear-gradient(to right, #5bcefa, #f5a9ba, white, #f5a9ba, #5bcefa);
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
+    line-height: 1.5;
 }
 
-form{
-  color: #BFD7EA;
-}
-
-body{
-  background-color: black;
+form {
+    color: #BFD7EA;
 }
