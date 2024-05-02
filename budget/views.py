@@ -86,7 +86,8 @@ def budget_graph(request):
 # Get balance
 def get_balance():
     budgets = Budget.objects.all().prefetch_related('payments')
+    total = 0
     for budget in budgets:
         total_payments = budget.payments.aggregate(total=Sum('amount'))['total'] or 0
-        budget.remaining_balance = budget.amount - total_payments
-    return budget.remaining_balance
+        total += budget.amount - total_payments
+    return total
