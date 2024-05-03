@@ -31,7 +31,8 @@ def budget_create(request):
             return redirect('index')
     else:
         form = BudgetForm()
-    return render(request, 'budget_create.html', {'form': form})
+    return render(request, 'budget_create.html', {'form': form, 'balance': get_balance()})
+
 
 def make_payment(request, budget_id):
     budget = Budget.objects.get(pk=budget_id)
@@ -42,7 +43,7 @@ def make_payment(request, budget_id):
             date = form.cleaned_data['date']
             amount = form.cleaned_data['amount']
             description = form.cleaned_data['description']
-            
+
             # Create and save Payment instance
             payment = Payment.objects.create(
                 user=request.user,
@@ -55,7 +56,23 @@ def make_payment(request, budget_id):
             return redirect('index')  # Redirect to budget list after payment
     else:
         form = PaymentForm()
-    return render(request, 'make_payment.html', {'budget': budget, 'form': form})
+    return render(request, 'make_payment.html', {'budget': budget, 'form': form, 'balance': get_balance()})
+
+def payment_edit(request, id):
+    try:
+        payment = Payment.objects.get(id=id)
+    except Payment.DoesNotExist:
+        raise Http404("Payment does not exist")
+
+    if request.method == 'POST':
+        form = PaymentForm(request.POST, instance=payment)
+        if form.is_valid():
+            form.save()
+            return redirect('index')
+    else:
+        form = PaymentForm(instance=payment)
+    
+    return render(request, 'payment_edit.html', {'form': form})
 
 def payment_edit(request, id):
     try:
@@ -96,31 +113,28 @@ def budget_edit(request, id):
             return redirect('index')
     else:
         form = BudgetForm(instance=budget)
-    
-    return render(request, 'budget_edit.html', {'form': form})
+
+    return render(request, 'budget_edit.html', {'form': form, 'balance': get_balance()})
+
 
 def budget_delete(request, id):
     try:
         budget = Budget.objects.get(id=id, user=request.user)
     except Budget.DoesNotExist:
         return redirect('index')
-    
+
     if request.method == 'POST':
         budget.delete()
-        return redirect('index')  
-    
+        return redirect('index')
 
-#Graph starts here
-
-
+# Graph starts here
 def budget_graph(request):
     data = Budget.objects.filter(user=request.user)
     context = { 'data' : data, }
-    
     return render(request, 'budget_graph.html', context)
 
+# Graph ends here
 
-#Graph ends here
 
 def user_login(request):
     if request.method == 'POST':
@@ -157,3 +171,4 @@ def get_balance(user):
         total_payments = budget.payments.aggregate(total=Sum('amount'))['total'] or 0
         total += budget.amount - total_payments
     return total
+

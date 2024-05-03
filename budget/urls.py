@@ -4,6 +4,7 @@ from .views import budget_delete
 from .views import budget_graph
 from django.contrib.auth import views as auth_views 
 
+
 urlpatterns = [
     path('', views.user_login, name='user_login'),
     path('budget/new/', views.budget_create, name='budget_create'),
