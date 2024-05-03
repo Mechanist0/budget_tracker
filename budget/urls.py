@@ -9,5 +9,6 @@ urlpatterns = [
     path('budget/<int:budget_id>/make_payment/', views.make_payment, name='make_payment'),
     path('budget_edit/<int:id>/', views.budget_edit, name='budget_edit'),
     path('budget_delete/<int:id>/', budget_delete, name='budget_delete'),
-    path('graph/', budget_graph, name="budget_graph")
+    path('graph/', budget_graph, name="budget_graph"),
+    path('payment_edit/<int:id>/', views.payment_edit, name='payment_edit'),
 ]

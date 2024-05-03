@@ -43,6 +43,21 @@ def make_payment(request, budget_id):
         form = PaymentForm()
     return render(request, 'make_payment.html', {'budget': budget, 'form': form, 'balance': get_balance()})
 
+def payment_edit(request, id):
+    try:
+        payment = Payment.objects.get(id=id)
+    except Payment.DoesNotExist:
+        raise Http404("Payment does not exist")
+
+    if request.method == 'POST':
+        form = PaymentForm(request.POST, instance=payment)
+        if form.is_valid():
+            form.save()
+            return redirect('index')
+    else:
+        form = PaymentForm(instance=payment)
+    
+    return render(request, 'payment_edit.html', {'form': form})
 
 def budget_edit(request, id):
     try:
@@ -71,15 +86,12 @@ def budget_delete(request, id):
         budget.delete()
         return redirect('index')
 
-    # Graph starts here
-
-
+# Graph starts here
 def budget_graph(request):
     data = Budget.objects.all()
     context = {'data': data, 'balance': get_balance()}
 
     return render(request, 'budget_graph.html', context)
-
 
 # Graph ends here
 

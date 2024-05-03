@@ -19,6 +19,7 @@
                             <li class="list-group-item">
                                 Payment on {{ payment.date }} - Amount: ${{ payment.amount }} -
                                 Description: {{ payment.description }}
+                                <a href="{% url 'payment_edit' payment.id %}" class="btn btn-sm btn-outline-secondary ml-2">Edit</a>
                             </li>
                         {% endfor %}
                         <!-- Displays remaining balance -->
