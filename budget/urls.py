@@ -13,5 +13,6 @@ urlpatterns = [
     path('graph/', budget_graph, name="budget_graph"),
     path('main/', views.index, name='index' ),
     path('logout/', views.logout_view, name='logout'),
-    path('signup/', views.signup, name='signup')
+    path('signup/', views.signup, name='signup'),
+    path('payment_edit/<int:id>/', views.payment_edit, name='payment_edit'),
 ]

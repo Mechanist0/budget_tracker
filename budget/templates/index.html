@@ -1,43 +1,42 @@
 <!-- index.html -->
 {% extends 'base_generic.html' %}
-
 {% block content %}
-<h1>Budget Categories</h1>
-<div class="container">
+    <h1>Budget Categories</h1>
     {% for budget in budgets %}
-    <div class="card mb-3">
-        <div class="card-header">
-            <strong>{{ budget.category }}</strong> - Amount: ${{ budget.amount }}
-            <a href="{% url 'budget_edit' budget.id %}" class="btn btn-sm btn-outline-primary ml-2">Edit</a>
-            <form action="{% url 'budget_delete' budget.id %}" method="post" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-sm btn-outline-danger ml-2">Delete</button>
-            </form>
+        <div class="card mb-3 justify-content-center">
+            <div class="card-header">
+                <strong>{{ budget.category }}</strong> - Amount: ${{ budget.amount }}
+                <a href="{% url 'budget_edit' budget.id %}" class="btn btn-sm btn-outline-primary ml-2">Edit</a>
+                <form action="{% url 'budget_delete' budget.id %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger ml-2">Delete</button>
+                </form>
+            </div>
+            <div class="card-body">
+                {% if budget.payments.all %}
+                    <ul class="list-group list-group-flush">
+                        {% for payment in budget.payments.all %}
+                            <li class="list-group-item">
+                                Payment on {{ payment.date }} - Amount: ${{ payment.amount }} -
+                                Description: {{ payment.description }}
+                                <a href="{% url 'payment_edit' payment.id %}" class="btn btn-sm btn-outline-secondary ml-2">Edit</a>
+                            </li>
+                        {% endfor %}
+                        <!-- Displays remaining balance -->
+                        <li class="list-group-item">
+                            Remaining Balance: $ {{ budget.remaining_balance|floatformat:2 }}
+                        </li>
+                    </ul>
+                {% else %}
+                    <p>No payments recorded.</p>
+                    <li class="list-group-item">
+                        Remaining Balance: ${{ budget.amount }}
+                    </li>
+                {% endif %}
+                <!-- "Make Payment" button -->
+                <a href="{% url 'make_payment' budget.id %}" class="btn btn-success">Make Payment</a>
+            </div>
         </div>
-        <div class="card-body">
-            {% if budget.payments.all %}
-            <ul class="list-group list-group-flush">
-                {% for payment in budget.payments.all %}
-                <li class="list-group-item">
-                    Payment on {{ payment.date }} - Amount: ${{ payment.amount }} - Description: {{ payment.description }}
-                </li>
-                {% endfor %}
-                <!-- Displays remaining balance -->
-                <li class="list-group-item">
-                    Remaining Balance: $ {{ budget.remaining_balance|floatformat:2 }} 
-                </li>
-            </ul>
-            {% else %}
-            <p>No payments recorded.</p>
-            <li class="list-group-item">
-                Remaining Balance: ${{ budget.amount }}
-            </li>
-            {% endif %}
-            <!-- "Make Payment" button -->
-            <a href="{% url 'make_payment' budget.id %}" class="btn btn-success">Make Payment</a>
-        </div>
-    </div>
     {% endfor %}
     <a href="{% url 'budget_create' %}" class="btn btn-primary mb-3">Add Category</a>
-</div>
 {% endblock %}

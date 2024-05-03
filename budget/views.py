@@ -12,10 +12,14 @@ from .forms import SignUpForm
 def index(request):
     """View function for home page of site."""
     budgets = Budget.objects.filter(user=request.user).prefetch_related('payments')
+    total_balance = 0
     for budget in budgets:
         total_payments = budget.payments.aggregate(total=Sum('amount'))['total'] or 0
         budget.remaining_balance = budget.amount - total_payments
-    return render(request, 'index.html', {'budgets': budgets})
+        total_balance += budget.remaining_balance
+    balance = get_balance(request.user)
+    return render(request, 'index.html', {'budgets': budgets, 'balance': balance})
+
 
 def budget_create(request):
     if request.method == 'POST':
@@ -52,6 +56,32 @@ def make_payment(request, budget_id):
     else:
         form = PaymentForm()
     return render(request, 'make_payment.html', {'budget': budget, 'form': form})
+
+def payment_edit(request, id):
+    try:
+        payment = Payment.objects.get(id=id)
+    except Payment.DoesNotExist:
+        raise Http404("Payment does not exist")
+
+    if request.method == 'POST':
+        form = PaymentForm(request.POST)
+        if form.is_valid():
+            # Update the payment object with form data
+            payment.date = form.cleaned_data['date']
+            payment.amount = form.cleaned_data['amount']
+            payment.description = form.cleaned_data['description']
+            payment.save()
+            return redirect('index')
+    else:
+        # Populate the form with payment data
+        form = PaymentForm(initial={
+            'date': payment.date,
+            'amount': payment.amount,
+            'description': payment.description
+        })
+    
+    return render(request, 'payment_edit.html', {'form': form})
+
 
 def budget_edit(request, id):
     try:
@@ -119,3 +149,11 @@ def signup(request):
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
+
+def get_balance(user):
+    budgets = Budget.objects.filter(user=user).prefetch_related('payments')
+    total = 0
+    for budget in budgets:
+        total_payments = budget.payments.aggregate(total=Sum('amount'))['total'] or 0
+        total += budget.amount - total_payments
+    return total
