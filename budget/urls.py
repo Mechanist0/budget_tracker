@@ -12,5 +12,6 @@ urlpatterns = [
     path('budget_delete/<int:id>/', budget_delete, name='budget_delete'),
     path('graph/', budget_graph, name="budget_graph"),
     path('main/', views.index, name='index' ),
-    path('logout/', views.logout_view, name='logout')
+    path('logout/', views.logout_view, name='logout'),
+    path('signup/', views.signup, name='signup')
 ]
