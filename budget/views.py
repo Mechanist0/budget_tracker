@@ -130,7 +130,8 @@ def budget_delete(request, id):
 # Graph starts here
 def budget_graph(request):
     data = Budget.objects.filter(user=request.user)
-    context = { 'data' : data, }
+    balance = get_balance(request.user)
+    context = { 'data' : data, 'balance' : balance }
     return render(request, 'budget_graph.html', context)
 
 # Graph ends here
