@@ -31,7 +31,7 @@ def budget_create(request):
             return redirect('index')
     else:
         form = BudgetForm()
-    return render(request, 'budget_create.html', {'form': form, 'balance': get_balance()})
+    return render(request, 'budget_create.html', {'form': form, 'balance': get_balance(request.user)})
 
 
 def make_payment(request, budget_id):
@@ -56,7 +56,7 @@ def make_payment(request, budget_id):
             return redirect('index')  # Redirect to budget list after payment
     else:
         form = PaymentForm()
-    return render(request, 'make_payment.html', {'budget': budget, 'form': form, 'balance': get_balance()})
+    return render(request, 'make_payment.html', {'budget': budget, 'form': form, 'balance': get_balance(request.user)})
 
 def payment_edit(request, id):
     try:
@@ -114,7 +114,7 @@ def budget_edit(request, id):
     else:
         form = BudgetForm(instance=budget)
 
-    return render(request, 'budget_edit.html', {'form': form, 'balance': get_balance()})
+    return render(request, 'budget_edit.html', {'form': form, 'balance': get_balance(request.user)})
 
 
 def budget_delete(request, id):
