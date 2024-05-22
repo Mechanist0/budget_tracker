@@ -99,6 +99,15 @@ def payment_edit(request, id):
     
     return render(request, 'payment_edit.html', {'form': form})
 
+def payment_delete(request, id):
+    try:
+        payment = Payment.objects.get(id=id)
+    except Payment.DoesNotExist:
+        raise Http404("payment does not exist")
+
+    if request.method == 'POST':
+        payment.delete()
+        return redirect("index")
 
 def budget_edit(request, id):
     try:
