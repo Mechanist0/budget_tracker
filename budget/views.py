@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Budget, Payment
+from .models import Category, Payment
 from .forms import BudgetForm, PaymentForm
 from django.db.models import Sum
 from django.contrib.auth.forms import AuthenticationForm
@@ -11,7 +11,7 @@ from .forms import SignUpForm
 
 def index(request):
     """View function for home page of site."""
-    budgets = Budget.objects.filter(user=request.user).prefetch_related('payments')
+    budgets = Category.objects.filter(user=request.user).prefetch_related('payments')
     total_balance = 0
     for budget in budgets:
         total_payments = budget.payments.aggregate(total=Sum('amount'))['total'] or 0
@@ -35,7 +35,7 @@ def budget_create(request):
 
 
 def make_payment(request, budget_id):
-    budget = Budget.objects.get(pk=budget_id)
+    budget = Category.objects.get(pk=budget_id)
     if request.method == 'POST':
         form = PaymentForm(request.POST)
         if form.is_valid():
@@ -111,8 +111,8 @@ def payment_delete(request, id):
 
 def budget_edit(request, id):
     try:
-        budget = Budget.objects.get(id=id, user=request.user)
-    except Budget.DoesNotExist:
+        budget = Category.objects.get(id=id, user=request.user)
+    except Category.DoesNotExist:
         raise Http404("Budget does not exist")
 
     if request.method == 'POST':
@@ -128,8 +128,8 @@ def budget_edit(request, id):
 
 def budget_delete(request, id):
     try:
-        budget = Budget.objects.get(id=id, user=request.user)
-    except Budget.DoesNotExist:
+        budget = Category.objects.get(id=id, user=request.user)
+    except Category.DoesNotExist:
         return redirect('index')
 
     if request.method == 'POST':
@@ -138,7 +138,7 @@ def budget_delete(request, id):
 
 # Graph starts here
 def budget_graph(request):
-    data = Budget.objects.filter(user=request.user)
+    data = Category.objects.filter(user=request.user)
     balance = get_balance(request.user)
     context = { 'data' : data, 'balance' : balance }
     return render(request, 'budget_graph.html', context)
@@ -175,7 +175,7 @@ def signup(request):
     return render(request, 'signup.html', {'form': form})
 
 def get_balance(user):
-    budgets = Budget.objects.filter(user=user).prefetch_related('payments')
+    budgets = Category.objects.filter(user=user).prefetch_related('payments')
     total = 0
     for budget in budgets:
         total_payments = budget.payments.aggregate(total=Sum('amount'))['total'] or 0

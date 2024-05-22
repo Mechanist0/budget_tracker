@@ -7,9 +7,8 @@ from django.db.models.functions import Lower  # Returns lower cased value of fie
 from django.contrib.auth.models import User 
 
 
-
-class Budget(models.Model):
-    """Model representing a budget"""
+class Category(models.Model):
+    """Model representing a budget Category"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
     category = models.CharField(max_length=200)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
@@ -30,7 +29,7 @@ class Budget(models.Model):
 class Payment(models.Model):
     """Model representing a specific payment to a category."""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name='payments')
+    budget = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='payments')
     date = models.DateField()
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField()
