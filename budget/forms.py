@@ -1,14 +1,29 @@
 from django import forms
-from .models import Category, Payment
+from .models import Category, Payment, TimePeriod, CurrentTimePeriod
 import datetime
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
 
+class CurrentPeriodForm(forms.ModelForm):
+    class Meta:
+        model = CurrentTimePeriod
+        fields = ['period']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
 class BudgetForm(forms.ModelForm):
     class Meta:
         model = Category
-        fields = ['category', 'amount']
+        fields = ['category', 'amount', 'timeperiod']
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields['timeperiod'].queryset = TimePeriod.objects.filter(user=user).order_by('-index')
 
 
 class PaymentForm(forms.ModelForm):

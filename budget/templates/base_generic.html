@@ -21,6 +21,7 @@
       <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
           <li><a class="nav-link px-2 text-secondary" id="navbtn" href="{% url 'index' %}">Home</a></li>
           <li><a class="nav-link px-2 text-secondary" id="navbtn" href="{% url 'budget_graph' %}">Graph</a></li>
+          <li><a class="nav-link px-2 text-secondary" id="navbtn" href="{% url 'time_period_edit' 1 %}">Time Period</a></li>
           <li><a class="nav-link px-2 text-secondary" id="navbtn" href="{% url 'logout' %}">Logout</a></li>
           <li><span class="nav-link px-2 text-secondary">Total Remaining: ${{ balance }}</span></li>
       </ul>

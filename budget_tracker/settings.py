@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'budget.apps.BudgetConfig',
+    'django_crontab',
 ]
 
 MIDDLEWARE = [
@@ -101,12 +102,17 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+CRONJOBS = [
+    ('0 0 * * *', 'django.core.management.call_command', ['update_timeperiods']),
+]
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Chicago'
 
 USE_I18N = True
 
