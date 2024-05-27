@@ -12,6 +12,7 @@ class CurrentPeriodForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['period'].queryset = TimePeriod.objects.all()
 
 
 class BudgetForm(forms.ModelForm):
@@ -41,7 +42,6 @@ class SignUpForm(UserCreationForm):
     username = forms.CharField(help_text='', required=True)
     password1 = forms.CharField(label="Password", strip=False, widget=forms.PasswordInput, help_text='',)
     password2 = forms.CharField(label="Password confimation", strip=False, widget=forms.PasswordInput, help_text="Reenter the password.")
-    
 
     class Meta:
         model = User

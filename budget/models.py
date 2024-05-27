@@ -8,14 +8,29 @@ from django.contrib.auth.models import User
 import time
 
 
+class TimePeriodManager(models.Manager):
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        desired_order = ['week', 'month', 'year']
+        ordering = models.Case(
+            *[models.When(type=type_value, then=models.Value(index)) for index, type_value in enumerate(desired_order)],
+            default=len(desired_order),
+            output_field=models.IntegerField(),
+        )
+        return queryset.annotate(ordering=ordering).order_by('ordering')
+
+
 class TimePeriod(models.Model):
     """Model representing time periods for all categories"""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     type = models.CharField(max_length=200)  # Time period type, can be day/week/month/year
     index = models.IntegerField()  # Epoch timestamp as index
 
+    objects = TimePeriodManager()
+
     def convert_to_human_readable(self):
         return time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.localtime(self.index))
+
     def __str__(self):
         return f"{self.type} starting at {self.convert_to_human_readable()} for {self.user}"
 
@@ -27,6 +42,7 @@ class CurrentTimePeriod(models.Model):
 
     def __str__(self):
         return f"{self.period}"
+
 
 class Category(models.Model):
     """Model representing a budget Category"""

@@ -103,7 +103,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 CRONJOBS = [
-    ('0 0 * * *', 'django.core.management.call_command', ['update_timeperiods']),
+    ('0 0 * * SUN', 'django.core.management.call_command', ['update_timeperiods']),
 ]
 
 

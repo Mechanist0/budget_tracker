@@ -16,14 +16,14 @@ from .forms import SignUpForm
 
 def index(request):
     """View function for home page of site."""
-    budgets = Category.objects.filter(user=request.user, timeperiod=get_current_time_period()).prefetch_related('payments')
+    budgets = Category.objects.filter(user=request.user, timeperiod=get_current_time_period().period).prefetch_related('payments')
     total_balance = 0
     for budget in budgets:
         total_payments = budget.payments.aggregate(total=Sum('amount'))['total'] or 0
         budget.remaining_balance = budget.amount - total_payments
         total_balance += budget.remaining_balance
     balance = get_balance(request.user)
-    return render(request, 'index.html', {'budgets': budgets, 'balance': balance, 'period': get_current_time_period()})
+    return render(request, 'index.html', {'budgets': budgets, 'balance': balance, 'period': get_current_time_period().id})
 
 
 def budget_create(request):
@@ -37,7 +37,7 @@ def budget_create(request):
             return redirect('index')
     else:
         form = BudgetForm()
-    return render(request, 'budget_create.html', {'form': form, 'balance': get_balance(request.user), 'period': get_current_time_period()})
+    return render(request, 'budget_create.html', {'form': form, 'balance': get_balance(request.user), 'period': get_current_time_period().id})
 
 
 def make_payment(request, budget_id):
@@ -62,24 +62,8 @@ def make_payment(request, budget_id):
             return redirect('index')  # Redirect to budget list after payment
     else:
         form = PaymentForm()
-    return render(request, 'make_payment.html', {'budget': budget, 'form': form, 'balance': get_balance(request.user), 'period': get_current_time_period()})
+    return render(request, 'make_payment.html', {'budget': budget, 'form': form, 'balance': get_balance(request.user), 'period': get_current_time_period().id})
 
-
-def payment_edit(request, id):
-    try:
-        payment = Payment.objects.get(id=id)
-    except Payment.DoesNotExist:
-        raise Http404("Payment does not exist")
-
-    if request.method == 'POST':
-        form = PaymentForm(request.POST, instance=payment)
-        if form.is_valid():
-            form.save()
-            return redirect('index')
-    else:
-        form = PaymentForm(instance=payment)
-    
-    return render(request, 'payment_edit.html', {'form': form})
 
 def payment_edit(request, id):
     try:
@@ -104,7 +88,8 @@ def payment_edit(request, id):
             'description': payment.description
         })
     
-    return render(request, 'payment_edit.html', {'form': form})
+    return render(request, 'payment_edit.html', {'form': form, 'period': get_current_time_period().id})
+
 
 def payment_delete(request, id):
     try:
@@ -115,6 +100,7 @@ def payment_delete(request, id):
     if request.method == 'POST':
         payment.delete()
         return redirect("index")
+
 
 def budget_edit(request, id):
     try:
@@ -131,7 +117,7 @@ def budget_edit(request, id):
     else:
         form = BudgetForm(instance=budget)
 
-    return render(request, 'budget_edit.html', {'form': form, 'balance': get_balance(request.user), 'period': get_current_time_period()})
+    return render(request, 'budget_edit.html', {'form': form, 'balance': get_balance(request.user), 'period': get_current_time_period().id})
 
 
 def budget_delete(request, id):
@@ -144,11 +130,12 @@ def budget_delete(request, id):
         budget.delete()
         return redirect('index')
 
+
 # Graph starts here
 def budget_graph(request):
     data = Category.objects.filter(user=request.user)
     balance = get_balance(request.user)
-    context = { 'data' : data, 'balance' : balance , 'period': get_current_time_period()}
+    context = { 'data' : data, 'balance' : balance , 'period': get_current_time_period().id}
     return render(request, 'budget_graph.html', context)
 
 # Graph ends here
@@ -183,12 +170,13 @@ def current_time_period_edit(request, id):
     else:
         form = CurrentPeriodForm(instance=period)
 
-    return render(request, 'current_time_period_edit.html', {'form': form, 'balance': get_balance(request.user), 'period': get_current_time_period()})
+    return render(request, 'current_time_period_edit.html', {'form': form, 'balance': get_balance(request.user), 'period': get_current_time_period().id})
 
 
 def logout_view(request):
     logout(request)
     return redirect('user_login')
+
 
 def signup(request):
     if request.method == 'POST':
@@ -200,6 +188,7 @@ def signup(request):
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
 
+
 def get_balance(user):
     budgets = Category.objects.filter(user=user).prefetch_related('payments')
     total = 0
@@ -208,8 +197,9 @@ def get_balance(user):
         total += budget.amount - total_payments
     return total
 
+
 def get_current_time_period():
     current = CurrentTimePeriod.objects.first()
-    return current.period
+    return current
 
 
