@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.db import models
 from django.db.models import Sum
 from django.urls import reverse  # Used in get_absolute_url() to get URL for specified ID
@@ -6,6 +8,8 @@ from django.db.models import UniqueConstraint  # Constrains fields to unique val
 from django.db.models.functions import Lower  # Returns lower cased value of field
 from django.contrib.auth.models import User
 import time
+
+from django.utils import timezone
 
 
 class TimePeriodManager(models.Manager):
@@ -27,6 +31,25 @@ class TimePeriod(models.Model):
     index = models.IntegerField()  # Epoch timestamp as index
 
     objects = TimePeriodManager()
+
+    """Is the index in current period range"""
+    def is_in_timeperiod(self, period):
+        print(type(period))
+
+        if type(period) is CurrentTimePeriod:
+            return period.period.index in range(self.index, int(self.get_next_period_index()))
+        return period.index in range(self.index, self.get_next_period_index())
+
+    def get_next_period_index(self):
+        match self.type:
+            case 'week':
+                return self.index + timedelta(weeks=1).total_seconds()
+            case 'month':
+                next_month = (timezone.datetime.fromtimestamp(self.index).replace(day=28) + timedelta(days=4)).replace(day=1)
+                return int(next_month.timestamp())
+            case 'year':
+                next_year = timezone.datetime.fromtimestamp(self.index).replace(year=timezone.datetime.fromtimestamp(self.index).year + 1, month=1, day=1)
+                return int(next_year.timestamp())
 
     def convert_to_human_readable(self):
         return time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.localtime(self.index))

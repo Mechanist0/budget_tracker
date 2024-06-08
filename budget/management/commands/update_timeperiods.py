@@ -16,6 +16,7 @@ def time_period_type_exists(user, period_type):
 def time_period_index_exists(user, index):
     return TimePeriod.objects.filter(user=user, index=index).exists()
 
+
 def copy_categories(user, prev, new):
     categories = Category.objects.filter(user=user, timeperiod=prev)
     for category in categories:
@@ -39,7 +40,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         now = timezone.now().astimezone(timezone.get_current_timezone())  # Current time in Chicago timezone
-        now_epoch = int(now.timestamp())
         users = User.objects.all()
 
         for user in users:
@@ -50,7 +50,7 @@ class Command(BaseCommand):
             latest_year = latest_time_period_by_type(user, "year")
 
             # Week
-            new_index_week = latest_week.index + timedelta(weeks=1).total_seconds()
+            new_index_week = latest_week.get_next_period_index()
             if not is_in_current_period(latest_week.index, new_index_week) and not time_period_index_exists(user, new_index_week):
                 new_time_period_week = TimePeriod.objects.create(
                     user=user,
@@ -61,8 +61,7 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS(f'Created new time period {new_time_period_week} for user {user}'))
 
             # Month
-            next_month = (timezone.datetime.fromtimestamp(latest_month.index).replace(day=28) + timedelta(days=4)).replace(day=1)
-            new_index_month = int(next_month.timestamp())
+            new_index_month = latest_month.get_next_period_index()
             if not is_in_current_period(latest_month.index, new_index_month) and not time_period_index_exists(user, new_index_month):
                 new_time_period_month = TimePeriod.objects.create(
                     user=user,
@@ -73,8 +72,7 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS(f'Created new time period {new_time_period_month} for user {user}'))
 
             # Year
-            next_year = timezone.datetime.fromtimestamp(latest_year.index).replace(year=timezone.datetime.fromtimestamp(latest_year.index).year + 1, month=1, day=1)
-            new_index_year = int(next_year.timestamp())
+            new_index_year = latest_year.get_next_period_index()
             if not is_in_current_period(latest_year.index, new_index_year) and not time_period_index_exists(user, new_index_year):
                 new_time_period_year = TimePeriod.objects.create(
                     user=user,
@@ -90,10 +88,6 @@ class Command(BaseCommand):
         start_of_previous_sunday = start_of_previous_sunday.replace(hour=0, minute=0, second=0, microsecond=0)
         new_week_index = int(start_of_previous_sunday.timestamp())
 
-        beginning_of_month = now.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-
-        beginning_of_year = now.now().replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
-
         if not time_period_type_exists(user, "week"):
             # Create an initial time period for the user
             initial_time_period_week = TimePeriod.objects.create(
@@ -107,19 +101,3 @@ class Command(BaseCommand):
                 period=initial_time_period_week
             )
             self.stdout.write(self.style.SUCCESS(f'Created initial time period {initial_time_period_week} for user {user}'))
-
-        if not time_period_type_exists(user, "month"):
-            initial_time_period_month = TimePeriod.objects.create(
-                user=user,
-                type='month',  # Default period type
-                index=int(beginning_of_month.timestamp())
-            )
-            self.stdout.write(self.style.SUCCESS(f'Created initial time period {initial_time_period_month} for user {user}'))
-
-        if not time_period_type_exists(user, "year"):
-            initial_time_period_year = TimePeriod.objects.create(
-                user=user,
-                type='year',  # Default period type
-                index=int(beginning_of_year.timestamp())
-            )
-            self.stdout.write(self.style.SUCCESS(f'Created initial time period {initial_time_period_year} for user {user}'))
