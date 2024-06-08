@@ -34,8 +34,6 @@ class TimePeriod(models.Model):
 
     """Is the index in current period range"""
     def is_in_timeperiod(self, period):
-        print(type(period))
-
         if type(period) is CurrentTimePeriod:
             return period.period.index in range(self.index, int(self.get_next_period_index()))
         return period.index in range(self.index, self.get_next_period_index())

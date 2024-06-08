@@ -19,11 +19,6 @@ def index(request):
     """View function for home page of site."""
     budgets = Category.objects.filter(user=request.user, timeperiod__in=get_period_tree()).prefetch_related(
         'payments')
-    total_balance = 0
-    for budget in budgets:
-        total_payments = budget.payments.aggregate(total=Sum('amount'))['total'] or 0
-        budget.remaining_balance = budget.amount - total_payments
-        total_balance += budget.remaining_balance
     balance = get_balance(request.user)
     return render(request, 'index.html',
                   {'budgets': budgets, 'balance': balance, 'period': get_current_time_period().id})
@@ -198,7 +193,7 @@ def signup(request):
 
 
 def get_balance(user):
-    budgets = Category.objects.filter(user=user).prefetch_related('payments')
+    budgets = Category.objects.filter(user=user, timeperiod__in=get_period_tree()).prefetch_related('payments')
     total = 0
     for budget in budgets:
         total_payments = budget.payments.aggregate(total=Sum('amount'))['total'] or 0
