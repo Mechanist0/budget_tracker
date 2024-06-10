@@ -23,7 +23,7 @@
           <li><a class="nav-link px-2 text-secondary" id="navbtn" href="{% url 'budget_graph' %}">Graph</a></li>
           <li><a class="nav-link px-2 text-secondary" id="navbtn" href="{% url 'time_period_edit' period %}">Time Period</a></li>
           <li><a class="nav-link px-2 text-secondary" id="navbtn" href="{% url 'logout' %}">Logout</a></li>
-          <li><span class="nav-link px-2 text-secondary">Total Remaining: ${{ balance }}</span></li>
+          <li><span class="nav-link px-2 text-secondary">Total Remaining: ${{ balance|floatformat:2 }}</span></li>
       </ul>
       </div>
       </div>

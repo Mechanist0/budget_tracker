@@ -113,3 +113,4 @@ class Command(BaseCommand):
                 period=initial_time_period_week
             )
             self.stdout.write(self.style.SUCCESS(f'Created initial time period {initial_time_period_week} for user {user}'))
+            4

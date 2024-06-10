@@ -19,6 +19,10 @@ def index(request):
     """View function for home page of site."""
     budgets = Category.objects.filter(user=request.user, timeperiod__in=get_period_tree()).prefetch_related(
         'payments')
+    for budget in budgets:
+        total_payments = budget.payments.aggregate(total=Sum('amount'))['total'] or 0
+        budget.remaining_balance = budget.amount - total_payments
+
     balance = get_balance(request.user)
     return render(request, 'index.html',
                   {'budgets': budgets, 'balance': balance, 'period': get_current_time_period().id})
