@@ -1,15 +1,20 @@
 # Budget Tracker
 This is a website designed to help you keep track of your budget on a weekly/monthly/yearly basis.
 
-## Supported OS
+---
+
+### Supported OS
 Linux
 
-## Requirements
+---
+
+### Requirements
 ```
 Python ---------- 3.10
 Django ---------- 5.0.2
 django-crontab -- 0.7.1
 ```
+---
 
 ### Setup
 Clone the project onto your local device using
@@ -39,8 +44,8 @@ Finally, run the app
 ```
 python3 manage.py runserver
 ```
-
-## Use
+---
+### Use
 Once you have logged in, pick your period by selecting it from the drop-down in the Time Period tab, 
 this lets you specify if you are working on a weekly/monthly/yearly basis.
 
