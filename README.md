@@ -8,12 +8,20 @@ Linux
 
 ---
 
+### TODO
+- [ ] Encrypt database using Post-Quantum Cryptography
+- [ ] Implement test suite
+- [ ] Fix graph page
+
+---
+
 ### Requirements
 ```
 Python ---------- 3.10
 Django ---------- 5.0.2
 django-crontab -- 0.7.1
 ```
+
 ---
 
 ### Setup
@@ -44,7 +52,9 @@ Finally, run the app
 ```
 python3 manage.py runserver
 ```
+
 ---
+
 ### Use
 Once you have logged in, pick your period by selecting it from the drop-down in the Time Period tab, 
 this lets you specify if you are working on a weekly/monthly/yearly basis.
