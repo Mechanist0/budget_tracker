@@ -1,14 +1,30 @@
 from django import forms
-from .models import Budget, Payment
+from .models import Category, Payment, TimePeriod, CurrentTimePeriod
 import datetime
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
 
+class CurrentPeriodForm(forms.ModelForm):
+    class Meta:
+        model = CurrentTimePeriod
+        fields = ['period']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['period'].queryset = TimePeriod.objects.all()
+
+
 class BudgetForm(forms.ModelForm):
     class Meta:
-        model = Budget
-        fields = ['category', 'amount']
+        model = Category
+        fields = ['category', 'amount', 'timeperiod']
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields['timeperiod'].queryset = TimePeriod.objects.filter(user=user).order_by('-index')
 
 
 class PaymentForm(forms.ModelForm):
@@ -26,7 +42,6 @@ class SignUpForm(UserCreationForm):
     username = forms.CharField(help_text='', required=True)
     password1 = forms.CharField(label="Password", strip=False, widget=forms.PasswordInput, help_text='',)
     password2 = forms.CharField(label="Password confimation", strip=False, widget=forms.PasswordInput, help_text="Reenter the password.")
-    
 
     class Meta:
         model = User

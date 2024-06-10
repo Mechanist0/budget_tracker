@@ -20,6 +20,10 @@
                                 Payment on {{ payment.date }} - Amount: ${{ payment.amount }} -
                                 Description: {{ payment.description }}
                                 <a href="{% url 'payment_edit' payment.id %}" class="btn btn-sm btn-outline-secondary ml-2">Edit</a>
+                                <form action="{% url 'payment_delete' payment.id %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger ml-2">Delete</button>
+                                </form>
                             </li>
                         {% endfor %}
                         <!-- Displays remaining balance -->

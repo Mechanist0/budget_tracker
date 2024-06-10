@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 from .views import budget_delete
 from .views import budget_graph
+from .views import payment_delete
 from django.contrib.auth import views as auth_views 
 
 
@@ -16,4 +17,6 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('signup/', views.signup, name='signup'),
     path('payment_edit/<int:id>/', views.payment_edit, name='payment_edit'),
+    path('payment_delete/<int:id>/', payment_delete, name='payment_delete'),
+    path('current_time_period_edit/<int:id>/', views.current_time_period_edit, name='time_period_edit')
 ]
