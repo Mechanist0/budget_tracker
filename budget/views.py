@@ -1,10 +1,12 @@
 from datetime import timedelta, datetime
 
+from django.contrib.auth.models import User
 from django.db.models.functions import Cast
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
+from . import models
 from .models import Category, Payment, TimePeriod, CurrentTimePeriod
 from .forms import BudgetForm, PaymentForm, CurrentPeriodForm
 from django.db.models import Sum, ExpressionWrapper, BooleanField, Q, Case, When, F, IntegerField, Value, QuerySet
@@ -17,7 +19,7 @@ from .forms import SignUpForm
 
 def index(request):
     """View function for home page of site."""
-    budgets = Category.objects.filter(user=request.user, timeperiod__in=get_period_tree()).prefetch_related(
+    budgets = Category.objects.filter(user=request.user, timeperiod__in=get_period_tree(request.user)).prefetch_related(
         'payments')
     for budget in budgets:
         total_payments = budget.payments.aggregate(total=Sum('amount'))['total'] or 0
@@ -25,7 +27,7 @@ def index(request):
 
     balance = get_balance(request.user)
     return render(request, 'index.html',
-                  {'budgets': budgets, 'balance': balance, 'period': get_current_time_period().id})
+                  {'budgets': budgets, 'balance': balance, 'period': get_current_time_period(request.user).id})
 
 
 def budget_create(request):
@@ -40,7 +42,7 @@ def budget_create(request):
     else:
         form = BudgetForm()
     return render(request, 'budget_create.html',
-                  {'form': form, 'balance': get_balance(request.user), 'period': get_current_time_period().id})
+                  {'form': form, 'balance': get_balance(request.user), 'period': get_current_time_period(request.user).id})
 
 
 def make_payment(request, budget_id):
@@ -66,7 +68,7 @@ def make_payment(request, budget_id):
     else:
         form = PaymentForm()
     return render(request, 'make_payment.html', {'budget': budget, 'form': form, 'balance': get_balance(request.user),
-                                                 'period': get_current_time_period().id})
+                                                 'period': get_current_time_period(request.user).id})
 
 
 def payment_edit(request, id):
@@ -92,7 +94,7 @@ def payment_edit(request, id):
             'description': payment.description
         })
 
-    return render(request, 'payment_edit.html', {'form': form, 'period': get_current_time_period().id})
+    return render(request, 'payment_edit.html', {'form': form, 'period': get_current_time_period(request.user).id})
 
 
 def payment_delete(request, id):
@@ -122,7 +124,7 @@ def budget_edit(request, id):
         form = BudgetForm(instance=budget)
 
     return render(request, 'budget_edit.html',
-                  {'form': form, 'balance': get_balance(request.user), 'period': get_current_time_period().id})
+                  {'form': form, 'balance': get_balance(request.user), 'period': get_current_time_period(request.user).id})
 
 
 def budget_delete(request, id):
@@ -140,7 +142,7 @@ def budget_delete(request, id):
 def budget_graph(request):
     data = Category.objects.filter(user=request.user)
     balance = get_balance(request.user)
-    context = {'data': data, 'balance': balance, 'period': get_current_time_period().id}
+    context = {'data': data, 'balance': balance, 'period': get_current_time_period(request.user).id}
     return render(request, 'budget_graph.html', context)
 
 
@@ -169,15 +171,15 @@ def current_time_period_edit(request, id):
         raise Http404("Period does not exist")
 
     if request.method == 'POST':
-        form = CurrentPeriodForm(request.POST, instance=period)
+        form = CurrentPeriodForm(request.POST, instance=period, user=request.user)
         if form.is_valid():
             form.save()
             return redirect('index')
     else:
-        form = CurrentPeriodForm(instance=period)
+        form = CurrentPeriodForm(instance=period, user=request.user)
 
     return render(request, 'current_time_period_edit.html',
-                  {'form': form, 'balance': get_balance(request.user), 'period': get_current_time_period().id})
+                  {'form': form, 'balance': get_balance(request.user), 'period': get_current_time_period(request.user).id})
 
 
 def logout_view(request):
@@ -189,7 +191,9 @@ def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
+            username = form.cleaned_data.get('username')
             form.save()
+            models.initialize_time_periods(user=User.objects.filter(username=username).first(), now=datetime.now())
             return redirect('user_login')  # Redirect to login page after successful signup
     else:
         form = SignUpForm()
@@ -197,7 +201,7 @@ def signup(request):
 
 
 def get_balance(user):
-    budgets = Category.objects.filter(user=user, timeperiod__in=get_period_tree()).prefetch_related('payments')
+    budgets = Category.objects.filter(user=user, timeperiod__in=get_period_tree(user)).prefetch_related('payments')
     total = 0
     for budget in budgets:
         total_payments = budget.payments.aggregate(total=Sum('amount'))['total'] or 0
@@ -205,12 +209,12 @@ def get_balance(user):
     return total
 
 
-def get_current_time_period():
-    return CurrentTimePeriod.objects.first()
+def get_current_time_period(user):
+    return CurrentTimePeriod.objects.filter(user=user).first()
 
 
-def get_period_tree():
-    current_period = get_current_time_period()
+def get_period_tree(user):
+    current_period = get_current_time_period(user=user)
 
     queryset = TimePeriod.objects.get_queryset()
     return_set = []
@@ -220,3 +224,5 @@ def get_period_tree():
 
     # Filter and count the items that are in the current period
     return return_set
+
+

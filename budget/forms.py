@@ -11,8 +11,9 @@ class CurrentPeriodForm(forms.ModelForm):
         fields = ['period']
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
-        self.fields['period'].queryset = TimePeriod.objects.all()
+        self.fields['period'].queryset = TimePeriod.objects.filter(user=user).all()
 
 
 class BudgetForm(forms.ModelForm):
