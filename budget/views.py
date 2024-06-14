@@ -40,7 +40,7 @@ def budget_create(request):
             budget.save()
             return redirect('index')
     else:
-        form = BudgetForm()
+        form = BudgetForm(user=request.user)
     return render(request, 'budget_create.html',
                   {'form': form, 'balance': get_balance(request.user), 'period': get_current_time_period(request.user).id})
 
