@@ -11,7 +11,6 @@ from budget.models import TimePeriod, Category, CurrentTimePeriod
 def is_in_current_period(prev, fut):
     now = int(timezone.now().timestamp())
     output = now in range(int(prev), int(fut))
-    print(f'prev {prev} < now {now} < future {fut} = {output}')
     return output
 
 
@@ -23,7 +22,7 @@ class Command(BaseCommand):
         users = User.objects.all()
 
         for user in users:
-            TimePeriod.initialize_time_periods(self, now, user)
+            models.initialize_time_periods(now, user)
             # Get most up-to-date time period
             latest_week = models.latest_time_period_by_type(user, "week")
             latest_month = models.latest_time_period_by_type(user, "month")
@@ -31,7 +30,9 @@ class Command(BaseCommand):
 
             # Week
             new_index_week = latest_week.get_next_period_index()
-            if not is_in_current_period(latest_week.index, new_index_week) and not models.time_period_index_exists(user, new_index_week):
+            print(latest_week)
+            print(new_index_week)
+            if not is_in_current_period(latest_week.index, new_index_week) and not models.time_period_index_exists(user, int(new_index_week)):
                 new_time_period_week = TimePeriod.objects.create(
                     user=user,
                     type="week",

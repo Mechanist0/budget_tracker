@@ -8,7 +8,10 @@ import time
 
 
 def latest_time_period_by_type(user, type):
-    return TimePeriod.objects.filter(user=user, type=type).order_by('ordering').first()
+    output = TimePeriod.objects.filter(user=user, type=type).order_by('-index').first()
+    if output is None:
+        return None
+    return output
 
 
 def time_period_type_exists(user, period_type):
@@ -16,18 +19,12 @@ def time_period_type_exists(user, period_type):
 
 
 def current_time_index_exists(user, index):
-    time_p = TimePeriod.objects.filter(user=user, index=index).first()
-    out = CurrentTimePeriod.objects.filter(user=user, period=time_p).exists()
-    print("Time period: " + str(time_p))
-    print("Current Time exists:" + str(out))
-    return out
+    time_p = TimePeriod.objects.filter(user=user, index=index).order_by('-index').first()
+    return CurrentTimePeriod.objects.filter(user=user, period=time_p).exists()
 
 
 def time_period_index_exists(user, index):
-    out = TimePeriod.objects.filter(user=user, index=index).exists()
-    print(user)
-    print("Time Period Index Exists" + str(out))
-    return out
+    return TimePeriod.objects.filter(user=user, index=index).exists()
 
 
 def copy_categories(user, prev, new):
@@ -50,7 +47,11 @@ def initialize_time_periods(now, user):
     first_day_of_month = datetime.datetime(now.year, now.month, 1, 0, 0).timestamp()
     first_day_of_year = datetime.datetime(now.year, 1, 1, 0, 0).timestamp()
 
-    if not time_period_index_exists(user, new_week_index):
+    latest_week = latest_time_period_by_type(user, "week")
+    latest_month = latest_time_period_by_type(user, "month")
+    latest_year = latest_time_period_by_type(user, "year")
+
+    if not time_period_type_exists(user, "week"):
         # Create an initial time period for the user
         initial_time_period_week = TimePeriod.objects.create(
             user=user,
@@ -58,35 +59,34 @@ def initialize_time_periods(now, user):
             index=new_week_index
         )
 
-        latest_week = latest_time_period_by_type(user, "week")
-        copy_categories(user, latest_week, initial_time_period_week)
+        if latest_week:
+            print(latest_week)
+            copy_categories(user, latest_week, initial_time_period_week)
 
         curr_time_period = CurrentTimePeriod.objects.create(
             user=user,
             period=initial_time_period_week
         )
 
-    if not time_period_index_exists(user, first_day_of_month):
+    if not time_period_type_exists(user, "month"):
         # Create an initial time period for the user
         initial_time_period_month = TimePeriod.objects.create(
             user=user,
             type='month',  # Default period type
             index=first_day_of_month
         )
+        if latest_month:
+            copy_categories(user, latest_month, initial_time_period_month)
 
-        latest_month = latest_time_period_by_type(user, "month")
-        copy_categories(user, latest_month, initial_time_period_month)
-
-    if not time_period_index_exists(user, first_day_of_year):
+    if not time_period_type_exists(user, "year"):
         # Create an initial time period for the user
         initial_time_period_year = TimePeriod.objects.create(
             user=user,
             type='year',  # Default period type
             index=first_day_of_year
         )
-
-        latest_year = latest_time_period_by_type(user, "month")
-        copy_categories(user, latest_year, initial_time_period_year)
+        if latest_year:
+            copy_categories(user, latest_year, initial_time_period_year)
 
 
 class TimePeriodManager(models.Manager):
