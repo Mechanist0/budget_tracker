@@ -9,9 +9,15 @@ Linux
 ---
 
 ### TODO
+- [ ] Fix Fall-Back Time issue affecting 09-Nov to 08-Mar
+- [ ] Make Edit Time Period readable
+- [ ] When looking at year, should be able to see all payments through the entire year
+- [ ] When looking at month, should be able to see all payments through the entire month
 - [ ] Encrypt database using Post-Quantum Cryptography
 - [ ] Implement test suite
+
 - [ ] Fix graph page
+  - [ ] Set a time period for graph to show
 
 ---
 
@@ -56,8 +62,8 @@ python3 manage.py runserver
 ---
 
 ### Use
-Once you have logged in, pick your period by selecting it from the drop-down in the Time Period tab, 
+Once you have logged in, pick your period by selecting it from the drop-down in the Time Period tab,
 this lets you specify if you are working on a weekly/monthly/yearly basis.
 
-Then you can create a new category to track a specified budget. 
+Then you can create a new category to track a specified budget.
 All categories will be copied over automatically at the start of the next week. (Sunday at 00:00 America\Chicago)

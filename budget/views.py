@@ -26,8 +26,9 @@ def index(request):
         budget.remaining_balance = budget.amount - total_payments
 
     balance = get_balance(request.user)
+    """Theres gotta be a better way to do this"""
     return render(request, 'index.html',
-                  {'budgets': budgets, 'balance': balance, 'period': get_current_time_period(request.user).id})
+        {'budgets': budgets, 'balance': balance, 'period': get_current_time_period(request.user).id, 'total_used': get_remaining_balance(request.user, get_current_time_period(request.user))})
 
 
 def budget_create(request):
@@ -42,7 +43,7 @@ def budget_create(request):
     else:
         form = BudgetForm(user=request.user)
     return render(request, 'budget_create.html',
-                  {'form': form, 'balance': get_balance(request.user), 'period': get_current_time_period(request.user).id})
+                  {'form': form, 'balance': get_balance(request.user), 'period': get_current_time_period(request.user).id, 'total_used': get_remaining_balance(request.user, get_current_time_period(request.user))})
 
 
 def make_payment(request, budget_id):
@@ -68,7 +69,7 @@ def make_payment(request, budget_id):
     else:
         form = PaymentForm()
     return render(request, 'make_payment.html', {'budget': budget, 'form': form, 'balance': get_balance(request.user),
-                                                 'period': get_current_time_period(request.user).id})
+                                                 'period': get_current_time_period(request.user).id, 'total_used': get_remaining_balance(request.user, get_current_time_period(request.user))})
 
 
 def payment_edit(request, id):
@@ -94,7 +95,7 @@ def payment_edit(request, id):
             'description': payment.description
         })
 
-    return render(request, 'payment_edit.html', {'form': form, 'period': get_current_time_period(request.user).id})
+    return render(request, 'payment_edit.html', {'form': form, 'period': get_current_time_period(request.user).id, 'total_used': get_remaining_balance(request.user, get_current_time_period(request.user))})
 
 
 def payment_delete(request, id):
@@ -124,7 +125,7 @@ def budget_edit(request, id):
         form = BudgetForm(instance=budget)
 
     return render(request, 'budget_edit.html',
-                  {'form': form, 'balance': get_balance(request.user), 'period': get_current_time_period(request.user).id})
+                  {'form': form, 'balance': get_balance(request.user), 'period': get_current_time_period(request.user).id, 'total_used': get_remaining_balance(request.user, get_current_time_period(request.user))})
 
 
 def budget_delete(request, id):
@@ -142,7 +143,7 @@ def budget_delete(request, id):
 def budget_graph(request):
     data = Category.objects.filter(user=request.user)
     balance = get_balance(request.user)
-    context = {'data': data, 'balance': balance, 'period': get_current_time_period(request.user).id}
+    context = {'data': data, 'balance': balance, 'period': get_current_time_period(request.user).id, 'total_used': get_remaining_balance(request.user, get_current_time_period(request.user))}
     return render(request, 'budget_graph.html', context)
 
 
@@ -179,7 +180,7 @@ def current_time_period_edit(request, id):
         form = CurrentPeriodForm(instance=period, user=request.user)
 
     return render(request, 'current_time_period_edit.html',
-                  {'form': form, 'balance': get_balance(request.user), 'period': get_current_time_period(request.user).id})
+                  {'form': form, 'balance': get_balance(request.user), 'period': get_current_time_period(request.user).id, 'total_used': get_remaining_balance(request.user, get_current_time_period(request.user))})
 
 
 def logout_view(request):
@@ -208,6 +209,15 @@ def get_balance(user):
         total += budget.amount - total_payments
     return total
 
+def get_remaining_balance(user, period):
+    budgets = Category.objects.filter(user=user, timeperiod=period.period_id)
+    total = 0
+
+    for budget in budgets:
+        total_payments = budget.payments.aggregate(total=Sum('amount'))['total'] or 0
+        total += total_payments
+    return total
+
 
 def get_current_time_period(user):
     return CurrentTimePeriod.objects.filter(user=user).first()
@@ -220,9 +230,17 @@ def get_period_tree(user):
     return_set = []
     for q in queryset:
         if q.is_in_timeperiod(current_period):
-            return_set.append(q)
+            return_set.append(q.id)
 
     # Filter and count the items that are in the current period
     return return_set
 
+def get_current_period(user):
+    current_period = get_current_time_period(user=user)
+    queryset = TimePeriod.objects.get_queryset()
+    return_set = []
+    for q in queryset:
+        if q.is_timeperiod(current_period):
+            return_set.append(q)
 
+    return return_set

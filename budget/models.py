@@ -153,6 +153,7 @@ class Category(models.Model):
     def get_total(self):
         return "Lmaos"
 
+
     def __str__(self):
         """String for representing the Model object."""
         return self.category
